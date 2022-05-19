@@ -1,0 +1,11 @@
+{
+    "orders": [
+        {
+            "item": "Lenovo Yoga 7i",
+            "quantity": 1,
+            "price": 186890.0,
+            "buyer": "Петин Петр",
+            "date": "19-05-2022"
+        }
+    ]
+}
