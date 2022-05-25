@@ -1,10 +1,12 @@
+import os
 import sys
 import json
 import socket
 import time
-from Lesson_3.common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
+sys.path.insert(0, os.path.join(os.getcwd(), '..'))
+from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
     RESPONSE, ERROR, DEFAULT_IP_ADDRESS, DEFAULT_PORT, PORT
-from Lesson_3.common.utils import get_message, send_message
+from common.utils import get_message, send_message
 import argparse
 
 
