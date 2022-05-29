@@ -1,0 +1,5 @@
+2022-05-29 17:03:31,480 CRITICAL   server_log_config.py Критическая ошибка
+2022-05-29 17:03:31,480 ERROR      server_log_config.py Ошибка
+2022-05-29 17:03:31,481 DEBUG      server_log_config.py Отладочная информация
+2022-05-29 17:03:31,481 INFO       server_log_config.py Информационное сообщение
+2022-05-29 17:03:31,481 WARNING    server_log_config.py Внимание
