@@ -7,6 +7,9 @@ from common.variables import ACTION, ACCOUNT_NAME, RESPONSE, MAX_CONNECTIONS, \
     PRESENCE, TIME, USER, ERROR, DEFAULT_PORT, RESPONDEFAULT_IP_ADDRESSSE
 from common.utils import get_message, send_message
 import argparse
+import logging
+
+LOG_MAIN = logging.getLogger('server')
 
 
 def process_client_msg(client_message):
@@ -31,7 +34,7 @@ def server_main():
         if not (1024 < listen_port < 65535):
             raise ValueError
     except ValueError:
-        print('Порт может быть только в диапозоне от 1024 до 65535.')
+        LOG_MAIN.critical(f'Ошибка порта {args.listen_port}: Порт вне диапазона от 1024 до 65535. Закрытие соединения.')
         sys.exit(1)
     address_listen = args.a
     transport = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -40,14 +43,17 @@ def server_main():
 
     while True:
         client, client_address = transport.accept()
+        LOG_MAIN.info(f'Установлено соединение с {client_address}')
         try:
             message_from_client = get_message(client)
             print(message_from_client)
+            LOG_MAIN.debug(f'Получено сообщение {message_from_client} от  {client_address}')
             response = process_client_msg(message_from_client)
             send_message(client, response)
+            LOG_MAIN.info(f'Отправлено сообщение {response} клиенту {client_address}')
             client.close()
         except (ValueError, json.JSONDecodeError):
-            print('Принято некорректное сообщение.')
+            LOG_MAIN.error(f'Не удалось декодировать сообщение клиента {client_address}.')
             client.close()
 
 

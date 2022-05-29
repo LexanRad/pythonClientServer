@@ -14,3 +14,7 @@ PRESENCE = 'presence'
 RESPONSE = 'response'
 ERROR = 'error'
 RESPONDEFAULT_IP_ADDRESSSE = 'respondefault_ip_addressse'
+
+LOG_DIRECTORY = 'data'
+LOG_CLIENT_NAME = 'client.log'
+LOG_SERVER_NAME = 'server.log'
