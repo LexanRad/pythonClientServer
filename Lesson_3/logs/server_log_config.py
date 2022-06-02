@@ -1,6 +1,6 @@
 import sys
 import os
-import logging
+import logging.handlers
 sys.path.insert(0, os.path.join(os.getcwd(), '..'))
 import common.variables as variables
 
@@ -16,7 +16,7 @@ STDERR_HANDLER = logging.StreamHandler(sys.stderr)
 STDERR_HANDLER.setLevel(logging.INFO)
 STDERR_HANDLER.setFormatter(FORMAT)
 
-FILE_HANDLER = logging.FileHandler(LOG_FILE)
+FILE_HANDLER = logging.handlers.TimedRotatingFileHandler(LOG_FILE, encoding='utf-8', interval=1, when='S')
 FILE_HANDLER.setLevel(logging.DEBUG)
 FILE_HANDLER.setFormatter(FORMAT)
 
