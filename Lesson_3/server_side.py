@@ -8,10 +8,12 @@ from common.variables import ACTION, ACCOUNT_NAME, RESPONSE, MAX_CONNECTIONS, \
 from common.utils import get_message, send_message
 import argparse
 import logging
+from decos import Log
 
 LOG_MAIN = logging.getLogger('server')
 
 
+@Log(LOG_MAIN)
 def process_client_msg(client_message):
     if ACTION in client_message and client_message[ACTION] == PRESENCE and TIME in client_message \
             and USER in client_message and client_message[USER][ACCOUNT_NAME] == 'Vadim':

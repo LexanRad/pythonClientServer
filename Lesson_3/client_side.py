@@ -9,11 +9,13 @@ from common.variables import ACTION, PRESENCE, TIME, USER, ACCOUNT_NAME, \
 from common.utils import get_message, send_message
 import argparse
 import logging
+from decos import Log
 
 
 LOG_MAIN = logging.getLogger('client')
 
 
+@Log(LOG_MAIN)
 def create_presence_msg(port=DEFAULT_PORT, acc_name='Lexan'):
     message_output = {
         ACTION: PRESENCE,
@@ -26,6 +28,7 @@ def create_presence_msg(port=DEFAULT_PORT, acc_name='Lexan'):
     return message_output
 
 
+@Log(LOG_MAIN)
 def server_process_answer(message_server):
     if RESPONSE in message_server:
         if message_server[RESPONSE] == 200:
