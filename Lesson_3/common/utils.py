@@ -4,8 +4,10 @@ import sys
 
 sys.path.insert(0, os.path.join(os.getcwd(), '..'))
 from common.variables import MAX_PACKAGE_LENGTH, ENCODING
+from decos import Log
 
 
+@Log()
 def get_message(socket):
     response_encoded = socket.recv(MAX_PACKAGE_LENGTH)
     if isinstance(response_encoded, bytes):
@@ -17,6 +19,7 @@ def get_message(socket):
     raise ValueError
 
 
+@Log()
 def send_message(socket, message):
     message_json = json.dumps(message)
     message_encoded = message_json.encode(ENCODING)
