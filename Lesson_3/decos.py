@@ -3,7 +3,7 @@ import inspect
 import logging
 
 
-class Log():
+class Log:
     def __init__(self, logger=None):
         self.logger = logger
 
