@@ -1,10 +1,10 @@
-from common.variables import *
-from errors import IncorrectDataRecivedError, NonDictInputError
-import json
 import os
 import sys
 
 sys.path.insert(0, os.path.join(os.getcwd(), '..'))
+from common.variables import *
+from errors import IncorrectDataRecivedError, NonDictInputError
+import json
 from decos import log
 
 
