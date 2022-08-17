@@ -1,26 +1,26 @@
-import socket
 import configparser
-import os
-import sys
-sys.path.insert(0, os.path.join(os.getcwd(), '..'))
+import socket
 import argparse
 import json
 import logging
+import threading
 import select
 import time
 from PyQt5.QtCore import QTimer
 import logs.config_server_log
 from metaclasses import ServerVerifier
 from errors import IncorrectDataRecivedError
+import os
+import sys
+sys.path.insert(0, os.path.join(os.getcwd(), '..'))
 from common.variables import *
 from common.utils import *
 from decos import log
-from descrptrs import Port
+from descrptrs import CheckPort
 from server_db_decl import ServerDB
 from PyQt5.QtWidgets import QApplication, QMessageBox
 from server_gui import MainWindow, gui_create_model, HistoryWindow, create_stat_model, ConfigWindow
 from PyQt5.QtGui import QStandardItemModel, QStandardItem
-
 
 # Инициализация логирования сервера.
 logger = logging.getLogger('server_dist')
@@ -42,14 +42,15 @@ def arg_parser(default_port, default_address):
 
 
 # Основной класс сервера
-class Server(metaclass=ServerVerifier,  metaclass=ServerVerifier):
+class Server(threading.Thread, metaclass=ServerVerifier):
     port = CheckPort()
 
-    def __init__(self, listen_address, listen_port):
+    def __init__(self, listen_address, listen_port, database):
         # Параметры подключения
         self.addr = listen_address
         self.port = listen_port
 
+        # База данных сервера
         self.database = database
 
         # Список подключённых клиентов.
@@ -70,6 +71,7 @@ class Server(metaclass=ServerVerifier,  metaclass=ServerVerifier):
             f'Если адрес не указан, принимаются соединения с любых адресов.')
         # Готовим сокет
         transport = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        transport.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         transport.bind((self.addr, self.port))
         transport.settimeout(0.5)
 
@@ -79,6 +81,7 @@ class Server(metaclass=ServerVerifier,  metaclass=ServerVerifier):
 
     def run(self):
         # Инициализация Сокета
+        global new_connection
         self.init_socket()
 
         # Основной цикл программы сервера
@@ -115,6 +118,9 @@ class Server(metaclass=ServerVerifier,  metaclass=ServerVerifier):
                                 del self.names[name]
                                 break
                         self.clients.remove(client_with_message)
+                        with conflag_lock:
+                            new_connection = True
+
 
             # Если есть сообщения, обрабатываем каждое.
             for message in self.messages:
@@ -150,6 +156,7 @@ class Server(metaclass=ServerVerifier,  metaclass=ServerVerifier):
     def process_client_message(self, message, client):
         global new_connection
         logger.debug(f'Разбор сообщения от клиента : {message}')
+
         # Если это сообщение о присутствии, принимаем и отвечаем
         if ACTION in message and message[ACTION] == PRESENCE \
                 and TIME in message and USER in message:
@@ -169,26 +176,44 @@ class Server(metaclass=ServerVerifier,  metaclass=ServerVerifier):
                 self.clients.remove(client)
                 client.close()
             return
+
         # Если это сообщение, то добавляем его в очередь сообщений. Ответ не требуется.
         elif ACTION in message \
                 and message[ACTION] == MESSAGE \
                 and DESTINATION in message \
                 and TIME in message \
                 and SENDER in message \
-                and MESSAGE_TEXT in message:
-            self.messages.append(message)
-            self.database.process_message(message[SENDER], message[DESTINATION])
+                and MESSAGE_TEXT in message \
+                and self.names[message[SENDER]] == client:
+            if message[DESTINATION] in self.names:
+                self.messages.append(message)
+                self.database.process_message(message[SENDER], message[DESTINATION])
+                send_message(client, RESPONSE_200)
+            else:
+                response = RESPONSE_400
+                response[ERROR] = 'Пользователь не зарегистрирован на сервере.'
+                send_message(client, response)
             return
+
         # Если клиент выходит
         elif ACTION in message \
                 and message[ACTION] == EXIT \
                 and ACCOUNT_NAME in message:
+            self.database.user_logout(message[ACCOUNT_NAME])
+            logger.info(
+                f'Клиент {message[ACCOUNT_NAME]} корректно отключился от сервера.')
             self.clients.remove(self.names[ACCOUNT_NAME])
             self.names[ACCOUNT_NAME].close()
             del self.names[ACCOUNT_NAME]
             with conflag_lock:
                 new_connection = True
             return
+
+        elif ACTION in message and message[ACTION] == GET_CONTACTS and USER in message and \
+                self.names[message[USER]] == client:
+            response = RESPONSE_202
+            response[LIST_INFO] = self.database.get_contacts(message[USER])
+            send_message(client, response)
 
         # Если это добавление контакта
         elif ACTION in message and message[ACTION] == ADD_CONTACT and ACCOUNT_NAME in message and USER in message \
@@ -218,14 +243,25 @@ class Server(metaclass=ServerVerifier,  metaclass=ServerVerifier):
             return
 
 
-def main():
+def config_load():
     config = configparser.ConfigParser()
-
     dir_path = os.path.dirname(os.path.realpath(__file__))
     config.read(f"{dir_path}/{'server.ini'}")
+    # Если конфиг файл загружен правильно, запускаемся, иначе конфиг по умолчанию.
+    if 'SETTINGS' in config:
+        return config
+    else:
+        config.add_section('SETTINGS')
+        config.set('SETTINGS', 'Default_port', str(DEFAULT_PORT))
+        config.set('SETTINGS', 'Listen_Address', '')
+        config.set('SETTINGS', 'Database_path', '')
+        config.set('SETTINGS', 'Database_file', 'server_database.db3')
+        return config
 
-    # Загрузка параметров командной строки, если нет параметров,
-    # то задаём значения по умолчанию.
+
+def main():
+    config = config_load()
+
     listen_address, listen_port = arg_parser(config['SETTINGS']['Default_port'],
                                              config['SETTINGS']['Listen_Address'])
 
@@ -233,7 +269,7 @@ def main():
             config['SETTINGS']['Database_path'],
             config['SETTINGS']['Database_file']))
 
-    # Создание экземпляра класса - сервера.
+    # Создание экземпляра класса - сервера
     server = Server(listen_address, listen_port, database)
     server.daemon = True
     server.start()
