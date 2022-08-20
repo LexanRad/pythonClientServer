@@ -1,5 +1,4 @@
 from PyQt5.QtWidgets import QDialog, QPushButton, QLineEdit, QApplication, QLabel , qApp
-from PyQt5.QtCore import QEvent
 
 
 class UserNameDialog(QDialog):
@@ -26,6 +25,15 @@ class UserNameDialog(QDialog):
         self.btn_cancel = QPushButton('Выход', self)
         self.btn_cancel.move(90, 60)
         self.btn_cancel.clicked.connect(qApp.exit)
+
+        self.label_passwd = QLabel('Введите пароль:', self)
+        self.label_passwd.move(10, 55)
+        self.label_passwd.setFixedSize(150, 15)
+
+        self.client_passwd = QLineEdit(self)
+        self.client_passwd.setFixedSize(154, 20)
+        self.client_passwd.move(10, 75)
+        self.client_passwd.setEchoMode(QLineEdit.Password)
 
         self.show()
 

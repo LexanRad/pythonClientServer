@@ -13,7 +13,7 @@ class ClientDatabase:
             self.id = None
             self.username = user
 
-    class MessageHistory:
+    class MessageStat:
         def __init__(self, contact, direction, message):
             self.id = None
             self.contact = contact
@@ -72,6 +72,10 @@ class ClientDatabase:
             self.session.add(contact_row)
             self.session.commit()
 
+    def contacts_clear(self):
+        self.session.query(self.Contacts).delete()
+        self.session.commit()
+
     def del_contact(self, contact):
         self.session.query(self.Contacts).filter_by(name=contact).delete()
         self.session.commit()
@@ -84,7 +88,7 @@ class ClientDatabase:
         self.session.commit()
 
     def save_message(self, contact, direction, message):
-        message_row = self.MessageHistory(contact, direction, message)
+        message_row = self.MessageStat(contact, direction, message)
         self.session.add(message_row)
         self.session.commit()
 
@@ -107,7 +111,7 @@ class ClientDatabase:
             return False
 
     def get_history(self, contact):
-        query = self.session.query(self.MessageHistory).filter_by(contact=contact)
+        query = self.session.query(self.MessageStat).filter_by(contact=contact)
         return [(history_row.contact, history_row.direction,
                  history_row.message, history_row.date)
                 for history_row in query.all()]
