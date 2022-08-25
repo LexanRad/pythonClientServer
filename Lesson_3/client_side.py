@@ -13,7 +13,7 @@ from decos import Log
 import threading
 
 
-LOG = logging.getLogger('client')
+LOG = logging.getLogger('client_side')
 
 
 class Client:

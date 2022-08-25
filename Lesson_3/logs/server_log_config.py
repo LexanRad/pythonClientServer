@@ -7,7 +7,7 @@ import common.variables as variables
 LOG_DIRECTORY = os.path.join(os.path.dirname(os.path.abspath(__file__)), variables.LOG_DIRECTORY)
 LOG_FILE = os.path.join(LOG_DIRECTORY, variables.LOG_SERVER_NAME)
 
-LOGGER = logging.getLogger('server')
+LOGGER = logging.getLogger('server_side')
 LOGGER.setLevel(logging.DEBUG)
 
 FORMAT = logging.Formatter('%(asctime)-10s %(levelname)-10s %(filename)-10s %(message)s')
