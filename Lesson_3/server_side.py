@@ -13,7 +13,7 @@ from collections import deque
 from socket import socket, AF_INET, SOCK_STREAM
 
 
-LOG = logging.getLogger('server')
+LOG = logging.getLogger('server_side')
 
 
 class Server:

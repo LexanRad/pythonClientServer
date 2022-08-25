@@ -22,5 +22,5 @@ DESTINATION = 'destination'
 
 
 LOG_DIRECTORY = 'data'
-LOG_CLIENT_NAME = 'client.log'
-LOG_SERVER_NAME = 'server.log'
+LOG_CLIENT_NAME = 'client_side.log'
+LOG_SERVER_NAME = 'server_side.log'
