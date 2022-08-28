@@ -1,0 +1,29 @@
+pyqt\_messenger.unit\_tests package
+===================================
+
+Submodules
+----------
+
+pyqt\_messenger.unit\_tests.test\_client module
+-----------------------------------------------
+
+.. automodule:: unit_tests.test_client
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+pyqt\_messenger.unit\_tests.test\_utils module
+----------------------------------------------
+
+.. automodule:: unit_tests.test_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
+Module contents
+---------------
+
+.. automodule:: unit_tests
+   :members:
+   :undoc-members:
+   :show-inheritance:
